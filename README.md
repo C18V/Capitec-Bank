@@ -1,1 +1,0 @@
-# Capitec-Bank
