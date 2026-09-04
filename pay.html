@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GlobalOne - Pay</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+        body { background: #f2f2f2; max-width: 430px; margin: 0 auto; min-height: 100vh; padding-bottom: 80px; }
+        .header-blue { background: #0077c8; color: white; padding: 15px; display: flex; align-items: center; }
+        .back-btn { color: white; text-decoration: none; font-size: 24px; margin-right: 15px; }
+        .header-blue .title { font-size: 20px; font-weight: 600; flex-grow: 1; text-align: center; }
+        
+        .pay-card { background: white; border-radius: 8px; margin: 20px; padding: 20px; }
+        .form-group { margin-bottom: 25px; }
+        .form-group label { display: block; color: #888; font-size: 12px; text-transform: uppercase; margin-bottom: 5px; }
+        .form-group input, .form-group select { width: 100%; border: none; border-bottom: 1px solid #ccc; padding: 8px 0; font-size: 16px; color: #333; }
+        .form-group input:focus { outline: none; border-bottom: 2px solid #0077c8; }
+        .btn-pay { width: 100%; padding: 15px; background: #0077c8; color: white; border: none; border-radius: 30px; font-size: 16px; font-weight: 600; cursor: pointer; }
+        
+        .success-screen { background: #69be28; padding: 20px; text-align: center; color: white; border-radius: 8px; }
+        .success-circle { width: 70px; height: 70px; background: white; border-radius: 50%; margin: 20px auto; color: #69be28; font-size: 40px; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+        
+        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; max-width: 430px; margin: 0 auto; background: white; display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #eee; z-index: 100; }
+        .nav-item { text-align: center; text-decoration: none; color: #888; font-size: 11px; }
+        .nav-item.active { color: #0077c8; }
+        .nav-item .icon { font-size: 22px; display: block; margin-bottom: 4px; }
+    </style>
+</head>
+<body>
+    <div class="header-blue">
+        <a href="dashboard.html" class="back-btn">←</a>
+        <div class="title">Pay</div>
+    </div>
+
+    <div class="pay-card" id="payCard">
+        <div class="form-group">
+            <label>Payment Type</label>
+            <select><option>Just once</option></select>
+        </div>
+        <div class="form-group">
+            <label>Beneficiary Reference</label>
+            <input type="text" id="payName" placeholder="T HELLYER">
+        </div>
+        <div class="form-group">
+            <label>Receiver (Beneficiary Name)</label>
+            <input type="text" id="payReceiver" placeholder="Themba Nene">
+        </div>
+        <div class="form-group">
+            <label>My Statement Description</label>
+            <input type="text" placeholder="Helena Dyers">
+        </div>
+        <div class="form-group">
+            <label>Amount (R)</label>
+            <input type="number" id="payAmount" placeholder="980.00">
+        </div>
+        <div class="form-group">
+            <label>Payment Notification</label>
+            <select><option>None</option></select>
+        </div>
+        <div class="form-group">
+            <label>Effective Date</label>
+            <input type="text" value="2 Sep 2026" readonly>
+        </div>
+
+        <button class="btn-pay" onclick="makePayment()">Pay</button>
+    </div>
+
+    <div class="bottom-nav">
+        <a href="dashboard.html" class="nav-item"><span class="icon">🏠</span>Home</a>
+        <a href="cards.html" class="nav-item"><span class="icon">💳</span>Cards</a>
+        <a href="pay.html" class="nav-item active"><span class="icon">⇄</span>Transact</a>
+        <a href="messages.html" class="nav-item"><span class="icon">💬</span>Messages</a>
+        <a href="explore.html" class="nav-item"><span class="icon">👤</span>Explore</a>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getFirestore, doc, getDoc, updateDoc, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDD22uL4h-3_zfZ9WDziUeUmXZuyuwXBIs",
+            authDomain: "globalone-5384a.firebaseapp.com",
+            projectId: "globalone-5384a",
+            storageBucket: "globalone-5384a.firebasestorage.app",
+            messagingSenderId: "74415409889",
+            appId: "1:74415409889:web:ad88ae947752108eb445a0"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        let currentUser = JSON.parse(localStorage.getItem('current_user'));
+        if (!currentUser) { window.location.href = 'index.html'; }
+
+        window.makePayment = async function() {
+            const name = document.getElementById('payName').value;
+            const amount = parseFloat(document.getElementById('payAmount').value);
+
+            if (!name || !amount || amount <= 0) { alert("Please enter valid details."); return; }
+            if (amount > currentUser.mainBalance) { alert("Insufficient funds!"); return; }
+
+            try {
+                const usersRef = collection(db, "users");
+                const q = query(usersRef, where("email", "==", currentUser.email));
+                const snapshot = await getDocs(q);
+                
+                if (!snapshot.empty) {
+                    const docRef = snapshot.docs[0].ref;
+                    const newBalance = currentUser.mainBalance - amount;
+                    const newMessages = [...currentUser.messages, { type: 'system', text: `You've paid R${amount.toFixed(2)} to ${name}.`, date: new Date().toLocaleDateString() }];
+                    
+                    await updateDoc(docRef, { mainBalance: newBalance, messages: newMessages });
+                    
+                    currentUser.mainBalance = newBalance;
+                    currentUser.messages = newMessages;
+                    localStorage.setItem('current_user', JSON.stringify(currentUser));
+
+                    document.getElementById('payCard').innerHTML = `
+                        <div class="success-screen">
+                            <h3>Successful</h3>
+                            <div class="success-circle">✓</div>
+                            <div style="font-size: 16px; font-weight: bold; color: #333;">You've paid R${amount.toFixed(2)} to ${name}.</div>
+                            <div style="margin-top: 10px; color: #333;">Effective date: Today</div>
+                        </div>
+                        <div style="margin-top: 20px;">
+                            <a href="dashboard.html" class="btn-pay" style="text-decoration: none; display: block; text-align: center;">Done</a>
+                            <a href="#" class="btn-pay" style="text-decoration: none; display: block; text-align: center; background: white; color: #0077c8; border: 1px solid #0077c8; margin-top: 10px;">Share Payment Notification</a>
+                        </div>
+                    `;
+                    document.getElementById('payCard').style.background = "transparent";
+                }
+            } catch (error) {
+                console.error("Error making payment:", error);
+                alert("Error making payment.");
+            }
+        }
+    </script>
+</body>
+</html>

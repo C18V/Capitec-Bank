@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GlobalOne - Explore</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+        body { background: #f2f2f2; max-width: 430px; margin: 0 auto; min-height: 100vh; padding-bottom: 80px; }
+        .header-blue { background: #0077c8; color: white; padding: 15px; display: flex; align-items: center; }
+        .back-btn { color: white; text-decoration: none; font-size: 24px; margin-right: 15px; }
+        .header-blue .title { font-size: 20px; font-weight: 600; flex-grow: 1; text-align: center; }
+        
+        .grid-container { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 20px; }
+        .grid-item { background: white; border-radius: 8px; padding: 25px 10px; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.05); text-decoration: none; color: #333; }
+        .grid-item .icon { font-size: 28px; margin-bottom: 10px; }
+        .grid-item span { font-size: 14px; font-weight: 500; }
+        
+        .section-title { background: #f2f2f2; padding: 15px 20px; color: #333; font-weight: 700; font-size: 16px; }
+        .list-item { background: white; padding: 15px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #eee; }
+        .text-col h4 { color: #333; font-size: 16px; font-weight: 600; margin-bottom: 2px; }
+        .text-col span { color: #777; font-size: 13px; }
+        .chevron { color: #0077c8; margin-left: 10px; font-size: 20px; }
+
+        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; max-width: 430px; margin: 0 auto; background: white; display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #eee; z-index: 100; }
+        .nav-item { text-align: center; text-decoration: none; color: #888; font-size: 11px; }
+        .nav-item.active { color: #0077c8; }
+        .nav-item .icon { font-size: 22px; display: block; margin-bottom: 4px; }
+    </style>
+</head>
+<body>
+    <div class="header-blue">
+        <a href="dashboard.html" class="back-btn">←</a>
+        <div class="title">Explore</div>
+    </div>
+
+    <div class="section-title">Offers & Benefits</div>
+    <div class="grid-container">
+        <a href="#" class="grid-item"><div class="icon">🎁</div><span>Rewards</span></a>
+        <a href="#" class="grid-item"><div class="icon">🏦</div><span>Branches</span></a>
+        <a href="#" class="grid-item"><div class="icon">📚</div><span>MoneyUp Academy</span></a>
+        <a href="#" class="grid-item"><div class="icon">📞</div><span>Support</span></a>
+    </div>
+
+    <div class="section-title">Help Center</div>
+    <div class="list-item">
+        <div class="text-col"><h4>FAQs</h4><span>Frequently asked questions</span></div>
+        <div class="chevron">›</div>
+    </div>
+    <div class="list-item">
+        <div class="text-col"><h4>Contact Us</h4><span>Reach out to support</span></div>
+        <div class="chevron">›</div>
+    </div>
+
+    <div class="bottom-nav">
+        <a href="dashboard.html" class="nav-item"><span class="icon">🏠</span>Home</a>
+        <a href="cards.html" class="nav-item"><span class="icon">💳</span>Cards</a>
+        <a href="pay.html" class="nav-item"><span class="icon">⇄</span>Transact</a>
+        <a href="messages.html" class="nav-item"><span class="icon">💬</span>Messages</a>
+        <a href="explore.html" class="nav-item active"><span class="icon">👤</span>Explore</a>
+    </div>
+</body>
+</html>

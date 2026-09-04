@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GlobalOne - Cards</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+        body { background: #f2f2f2; max-width: 430px; margin: 0 auto; min-height: 100vh; padding-bottom: 80px; }
+        .header-blue { background: #0077c8; color: white; padding: 15px; display: flex; align-items: center; }
+        .back-btn { color: white; text-decoration: none; font-size: 24px; margin-right: 15px; }
+        .header-blue .title { font-size: 20px; font-weight: 600; flex-grow: 1; text-align: center; }
+        
+        .card-container { padding: 30px 20px; }
+        .credit-card { background: linear-gradient(135deg, #1a1a1a, #333); color: white; border-radius: 15px; padding: 25px; width: 100%; max-width: 350px; margin: 0 auto; box-shadow: 0 10px 20px rgba(0,0,0,0.3); }
+        .card-top { display: flex; justify-content: space-between; font-size: 14px; opacity: 0.8; margin-bottom: 40px; }
+        .card-number { font-size: 22px; letter-spacing: 3px; margin-bottom: 30px; font-family: monospace; }
+        .card-bottom { display: flex; justify-content: space-between; font-size: 12px; }
+        .card-bottom div span { display: block; opacity: 0.6; margin-bottom: 5px; font-size: 10px; }
+        
+        .list-item { background: white; margin: 10px 15px; padding: 15px; display: flex; align-items: center; justify-content: space-between; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .text-col h4 { color: #333; font-size: 16px; font-weight: 600; }
+        .text-col span { color: #777; font-size: 13px; }
+        .chevron { color: #0077c8; margin-left: 10px; font-size: 20px; }
+
+        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; max-width: 430px; margin: 0 auto; background: white; display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #eee; z-index: 100; }
+        .nav-item { text-align: center; text-decoration: none; color: #888; font-size: 11px; }
+        .nav-item.active { color: #0077c8; }
+        .nav-item .icon { font-size: 22px; display: block; margin-bottom: 4px; }
+    </style>
+</head>
+<body>
+    <div class="header-blue">
+        <a href="dashboard.html" class="back-btn">←</a>
+        <div class="title">Cards</div>
+    </div>
+
+    <div class="card-container">
+        <div class="credit-card">
+            <div class="card-top"><span>GlobalOne</span> <span>📶</span></div>
+            <div class="card-number">***** ***** ***** *****</div>
+            <div class="card-bottom">
+                <div><span>CARD HOLDER</span><strong id="cardName">USER NAME</strong></div>
+                <div><span>EXPIRES</span><strong>12/28</strong></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="list-item">
+        <div class="text-col"><h4>Update permanent limits</h4><span>Manage daily spending</span></div>
+        <div class="chevron">›</div>
+    </div>
+    <div class="list-item">
+        <div class="text-col"><h4>Set temporary limits</h4><span>Control current settings</span></div>
+        <div class="chevron">›</div>
+    </div>
+    <div class="list-item">
+        <div class="text-col"><h4>Tap to pay</h4><span>Quick contactless payments</span></div>
+        <div class="chevron">›</div>
+    </div>
+
+    <div class="bottom-nav">
+        <a href="dashboard.html" class="nav-item"><span class="icon">🏠</span>Home</a>
+        <a href="cards.html" class="nav-item active"><span class="icon">💳</span>Cards</a>
+        <a href="pay.html" class="nav-item"><span class="icon">⇄</span>Transact</a>
+        <a href="messages.html" class="nav-item"><span class="icon">💬</span>Messages</a>
+        <a href="explore.html" class="nav-item"><span class="icon">👤</span>Explore</a>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getFirestore, collection, onSnapshot, query, where } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDD22uL4h-3_zfZ9WDziUeUmXZuyuwXBIs",
+            authDomain: "globalone-5384a.firebaseapp.com",
+            projectId: "globalone-5384a",
+            storageBucket: "globalone-5384a.firebasestorage.app",
+            messagingSenderId: "74415409889",
+            appId: "1:74415409889:web:ad88ae947752108eb445a0"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        let currentUser = JSON.parse(localStorage.getItem('current_user'));
+        if (!currentUser) { window.location.href = 'index.html'; }
+
+        // Real-time listener
+        const usersRef = collection(db, "users");
+        const q = query(usersRef, where("email", "==", currentUser.email));
+        
+        onSnapshot(q, (snapshot) => {
+            if (!snapshot.empty) {
+                const user = snapshot.docs[0].data();
+                document.getElementById('cardName').innerText = user.name.toUpperCase();
+            }
+        });
+    </script>
+</body>
+</html>

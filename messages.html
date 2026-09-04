@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GlobalOne - Messages</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+        body { background: #f2f2f2; max-width: 430px; margin: 0 auto; min-height: 100vh; padding-bottom: 80px; }
+        .header-blue { background: #0077c8; color: white; padding: 15px; display: flex; align-items: center; }
+        .back-btn { color: white; text-decoration: none; font-size: 24px; margin-right: 15px; }
+        .header-blue .title { font-size: 20px; font-weight: 600; flex-grow: 1; text-align: center; }
+        
+        .empty-state { text-align: center; padding: 60px 20px; color: #888; }
+        .empty-state .icon { font-size: 60px; margin-bottom: 20px; opacity: 0.5; }
+        .empty-state h2 { color: #333; margin-bottom: 10px; font-size: 20px; }
+        
+        .list-container { background: white; margin: 20px 15px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); padding: 15px; }
+        .message-item { padding: 15px 0; border-bottom: 1px solid #eee; font-size: 14px; }
+        .message-item:last-child { border-bottom: none; }
+        .message-item small { color: #888; display: block; margin-bottom: 5px; }
+
+        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; max-width: 430px; margin: 0 auto; background: white; display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #eee; z-index: 100; }
+        .nav-item { text-align: center; text-decoration: none; color: #888; font-size: 11px; }
+        .nav-item.active { color: #0077c8; }
+        .nav-item .icon { font-size: 22px; display: block; margin-bottom: 4px; }
+    </style>
+</head>
+<body>
+    <div class="header-blue">
+        <a href="dashboard.html" class="back-btn">←</a>
+        <div class="title">Messages</div>
+    </div>
+
+    <div id="messagesContent">
+        <!-- Messages loaded here by JS -->
+    </div>
+
+    <div class="bottom-nav">
+        <a href="dashboard.html" class="nav-item"><span class="icon">🏠</span>Home</a>
+        <a href="cards.html" class="nav-item"><span class="icon">💳</span>Cards</a>
+        <a href="pay.html" class="nav-item"><span class="icon">⇄</span>Transact</a>
+        <a href="messages.html" class="nav-item active"><span class="icon">💬</span>Messages</a>
+        <a href="explore.html" class="nav-item"><span class="icon">👤</span>Explore</a>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getFirestore, collection, onSnapshot, query, where } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDD22uL4h-3_zfZ9WDziUeUmXZuyuwXBIs",
+            authDomain: "globalone-5384a.firebaseapp.com",
+            projectId: "globalone-5384a",
+            storageBucket: "globalone-5384a.firebasestorage.app",
+            messagingSenderId: "74415409889",
+            appId: "1:74415409889:web:ad88ae947752108eb445a0"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        let currentUser = JSON.parse(localStorage.getItem('current_user'));
+        if (!currentUser) { window.location.href = 'index.html'; }
+
+        // Real-time listener to fetch messages from Cloud
+        const usersRef = collection(db, "users");
+        const q = query(usersRef, where("email", "==", currentUser.email));
+        
+        onSnapshot(q, (snapshot) => {
+            if (!snapshot.empty) {
+                const user = snapshot.docs[0].data();
+                const content = document.getElementById('messagesContent');
+
+                // Check if there are no messages
+                if (user.messages.length === 0) {
+                    content.innerHTML = `
+                        <div class="empty-state">
+                            <div class="icon">💬</div>
+                            <h2>No messages available</h2>
+                            <p>You have no notifications right now.<br>We'll let you know when something comes up!</p>
+                        </div>
+                    `;
+                } else {
+                    content.innerHTML = `
+                        <div class="list-container">
+                            ${user.messages.map(m => `
+                                <div class="message-item">
+                                    <small>${m.date}</small>
+                                    ${m.text}
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                }
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GlobalOne - Sign Up</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+        body { background: #f2f2f2; max-width: 430px; margin: 0 auto; min-height: 100vh; }
+        .header-blue { background: #0077c8; color: white; padding: 20px; text-align: center; font-size: 20px; font-weight: 600; }
+        .form-card { background: white; border-radius: 8px; margin: 30px 20px; padding: 30px 20px; }
+        .form-group { margin-bottom: 30px; }
+        .form-group label { display: block; color: #888; font-size: 12px; text-transform: uppercase; margin-bottom: 5px; }
+        .form-group input { width: 100%; border: none; border-bottom: 1px solid #ccc; padding: 8px 0; font-size: 18px; color: #333; }
+        .form-group input:focus { outline: none; border-bottom: 2px solid #0077c8; }
+        .btn-primary { width: 100%; padding: 15px; background: #0077c8; color: white; border: none; border-radius: 30px; font-size: 16px; font-weight: 600; cursor: pointer; display: block; text-align: center; text-decoration: none; }
+        .text-link { text-align: center; margin-top: 20px; font-size: 14px; color: #333; }
+        .text-link a { color: #0077c8; font-weight: 600; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <div class="header-blue">Create Account</div>
+    <div class="form-card">
+        <div class="form-group">
+            <label>Full Name</label>
+            <input type="text" id="fullName" placeholder="John Doe">
+        </div>
+        <div class="form-group">
+            <label>Email Address</label>
+            <input type="email" id="signupEmail" placeholder="you@example.com">
+        </div>
+        <div class="form-group">
+            <label>Password</label>
+            <input type="password" id="signupPass" placeholder="Create password">
+        </div>
+        <a href="#" class="btn-primary" onclick="signup(event)">Sign Up</a>
+        <div class="text-link">Already have an account? <a href="index.html">Sign in</a></div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getFirestore, collection, addDoc, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDD22uL4h-3_zfZ9WDziUeUmXZuyuwXBIs",
+            authDomain: "globalone-5384a.firebaseapp.com",
+            projectId: "globalone-5384a",
+            storageBucket: "globalone-5384a.firebasestorage.app",
+            messagingSenderId: "74415409889",
+            appId: "1:74415409889:web:ad88ae947752108eb445a0"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        window.signup = async function(e) {
+            e.preventDefault();
+            const name = document.getElementById('fullName').value;
+            const email = document.getElementById('signupEmail').value;
+            const pass = document.getElementById('signupPass').value;
+
+            if(!name || !email || !pass) { alert("Please fill out all fields."); return; }
+
+            try {
+                // Check if user already exists
+                const usersRef = collection(db, "users");
+                const q = query(usersRef, where("email", "==", email));
+                const querySnapshot = await getDocs(q);
+
+                if (!querySnapshot.empty) { alert("User already exists. Please login."); return; }
+
+                const newUser = {
+                    name: name, email: email, password: pass,
+                    mainBalance: 500.00,
+                    savingsBalance: 3400.00,
+                    creditBalance: 24600.00,
+                    card: "***** ***** ***** *****",
+                    messages: [], chatHistory: []
+                };
+
+                await addDoc(collection(db, "users"), newUser);
+
+                alert("Account created successfully! Please log in.");
+                window.location.href = 'index.html';
+            } catch (error) {
+                console.error("Error signing up:", error);
+                alert("Error signing up: " + error.message);
+            }
+        }
+    </script>
+</body>
+</html>
